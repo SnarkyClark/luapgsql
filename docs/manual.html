@@ -1,0 +1,404 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=us-ascii">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.3  (FreeBSD/i386)">
+	<META NAME="AUTHOR" CONTENT="Stefan Peters">
+	<META NAME="CREATED" CONTENT="20080322;10362100">
+	<META NAME="CHANGEDBY" CONTENT="Stefan Peters">
+	<META NAME="CHANGED" CONTENT="20080401;16224600">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { size: 8.5in 11in; margin: 0.79in }
+		P { margin-top: 0.08in; margin-bottom: 0.08in; background: transparent; page-break-inside: avoid; page-break-before: auto; page-break-after: auto }
+		P.western { font-size: 10pt }
+		H1 { margin-bottom: 0.08in }
+		H1.western { font-family: "Arial Black", sans-serif }
+		H1.cjk { font-family: "Lucida Sans Unicode" }
+		H1.ctl { font-family: "Tahoma" }
+		H2 { margin-bottom: 0.08in; page-break-before: auto }
+		H2.western { font-family: "Arial Black", sans-serif; font-size: 14pt; font-style: normal; font-weight: medium }
+		H2.cjk { font-family: "Lucida Sans Unicode"; font-size: 14pt; font-style: normal; font-weight: medium }
+		H2.ctl { font-family: "Tahoma"; font-size: 14pt; font-style: normal; font-weight: medium }
+		H3 { margin-bottom: 0.08in; page-break-before: auto }
+		H3.western { font-family: "Arial", sans-serif; font-size: 12pt }
+		H3.cjk { font-family: "Lucida Sans Unicode" }
+		H3.ctl { font-family: "Tahoma" }
+		P.code-western { margin-left: 0.25in; margin-right: 0.25in; margin-top: 0in; margin-bottom: 0in; background: #ffffcc; border: none; padding: 0in; font-family: "Courier New", monospace; font-size: 9pt; font-style: normal }
+		P.code-cjk { margin-left: 0.25in; margin-right: 0.25in; margin-top: 0in; margin-bottom: 0in; background: #ffffcc; border: none; padding: 0in; font-style: normal }
+		P.code-ctl { margin-left: 0.25in; margin-right: 0.25in; margin-top: 0in; margin-bottom: 0in; background: #ffffcc; border: none; padding: 0in; font-style: normal }
+		P.description-western { font-size: 10pt; font-style: italic; page-break-after: avoid }
+		P.description-cjk { font-style: italic; page-break-after: avoid }
+		P.description-ctl { font-style: italic; page-break-after: avoid }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1 CLASS="western">Lua-PgSQL</H1>
+<P CLASS="western" ALIGN=LEFT STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; font-weight: medium; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<FONT SIZE=3><I>A lightweight binding of the libpq client library for
+PostgreSQL</I> </FONT>
+</P>
+<P CLASS="western" ALIGN=CENTER STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; font-weight: medium; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<P CLASS="western" ALIGN=LEFT STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<FONT SIZE=3><B>2008.04.01</B></FONT></P>
+<H2 CLASS="western">License</H2>
+<P CLASS="western">Lua-PgSQL is provided under the <B>simplified BSD
+license</B>:</P>
+<P CLASS="western"><FONT FACE="Courier New, monospace"><FONT SIZE=1 STYLE="font-size: 8pt">Copyright
+2008 Outsourced Printing Solutions, Inc. All rights reserved.</FONT></FONT></P>
+<P CLASS="western"><FONT FACE="Courier New, monospace"><FONT SIZE=1 STYLE="font-size: 8pt">Redistribution
+and use in source and binary forms, with or without modification, are
+permitted provided that the following conditions are met:</FONT></FONT></P>
+<OL>
+	<LI><P CLASS="western" STYLE="margin-bottom: 0in"><FONT FACE="Courier New, monospace"><FONT SIZE=1 STYLE="font-size: 8pt">Redistributions
+	of source code must retain the above copyright notice, this list of
+	conditions and the following disclaimer. </FONT></FONT>
+	</P>
+	<LI><P CLASS="western"><FONT FACE="Courier New, monospace"><FONT SIZE=1 STYLE="font-size: 8pt">Redistributions
+	in binary form must reproduce the above copyright notice, this list
+	of conditions and the following disclaimer in the documentation
+	and/or other materials provided with the distribution. </FONT></FONT>
+	</P>
+</OL>
+<P CLASS="western"><FONT FACE="Courier New, monospace"><FONT SIZE=1 STYLE="font-size: 8pt">THIS
+SOFTWARE IS PROVIDED BY THE ORIGINAL AUTHOR ``AS IS'' AND ANY EXPRESS
+OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE ORIGINAL AUTHOR OR CONTRIBUTORS
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</FONT></FONT></P>
+<H2 CLASS="western">Overview</H2>
+<P CLASS="western"><B>Lua-PgSQL</B> is a purpose built Lua module
+designed for the fast and efficient manipulation of a <B>PostgreSQL</B>
+database using the official <B>libpq</B> client libraries. As this is
+a lightweight binding, some of this documentation is sourced directly
+from the PostgreSQL manual. The current version can be downloaded
+from here:</P>
+<P CLASS="western"><A HREF="http://luaforge.net/projects/luapgsql/">http://luaforge.net/projects/luapgsql/</A></P>
+<P CLASS="western">The base functions only serve to configure the
+client libraries and provide a <B>connection object </B><SPAN STYLE="font-weight: medium">that
+is used to prepare data and execute SQL commands. Once a command is
+executed, a </SPAN><B>result object</B><SPAN STYLE="font-weight: medium">
+is created. This object is used to perform all of the data retrieval
+operations.</SPAN></P>
+<P CLASS="western">The object methods are arranged where more
+functionality is provided the further up the hierarchy you go. This
+allows for identical libraries to be made for almost any database.
+One could imagine a Lua-MySQL binding built from these sources with
+relatively minor modifications...</P>
+<H3 CLASS="western">Requirements:</H3>
+<UL>
+	<LI><P CLASS="western">Lua 5.1+</P>
+	<LI><P CLASS="western">PostgreSQL 7.4+ Client</P>
+</UL>
+<H2 CLASS="western"><CODE><FONT FACE="Arial Black, sans-serif"><SPAN STYLE="font-weight: medium">Base
+functions</SPAN></FONT></CODE></H2>
+<H3 CLASS="western"><CODE><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><B>pg.connect(</B></FONT></FONT></CODE><CODE><FONT FACE="Arial, sans-serif"><FONT SIZE=3><I><B>connection
+</B></I></FONT></FONT></CODE><CODE><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><I><B>string</B></I></FONT></FONT></CODE><CODE><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 11pt"><B>)</B></FONT></FONT></CODE></H3>
+<P CLASS="western"><I>Makes a new connection to the database server. </I>
+</P>
+<P CLASS="western"><SPAN STYLE="font-style: normal">Returns a
+connection object and a error message. If there is an error the
+connection object will be </SPAN><SPAN STYLE="font-style: normal"><B>nil</B></SPAN><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: medium">
+and the error message will be in plain text.</SPAN></SPAN></P>
+<P CLASS="western">This function opens a new database connection
+using the parameters taken from the connection string.  The passed
+string can be empty to use all default parameters, or it can contain
+one or more parameter settings separated by whitespace. Each
+parameter setting is in the form <TT>keyword = value</TT>. (To write
+an empty value or a value containing spaces, surround it with single
+quotes, e.g., <TT>keyword = 'a value'</TT>. Single quotes and
+backslashes within the value must be escaped with a backslash, i.e.,
+<TT>\'</TT> and <TT>\\</TT>.) Spaces around the equal sign are
+optional. 
+</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<P CLASS="code-western">con, errmsg = pg.connect(&ldquo;host=localhost
+dbname=foobar user=foo password=bar&rdquo;)</P>
+<P CLASS="code-western" STYLE="font-style: normal">if not con then</P>
+<P CLASS="code-western" STYLE="font-style: normal">	print(string.format(&ldquo;Connection
+Error: %s&rdquo;, errmsg))</P>
+<P CLASS="code-western" STYLE="font-style: normal">end</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<P CLASS="western">The currently recognized parameter key words are: 
+</P>
+<P CLASS="western"><TT>host</TT></P>
+<P CLASS="western" STYLE="margin-left: 0.49in"><A NAME="AEN19942"></A><A NAME="AEN19945"></A>
+Name of host to connect to. If this begins with a slash, it specifies
+Unix-domain communication rather than TCP/IP communication; the value
+is the name of the directory in which the socket file is stored. The
+default is to connect to a Unix-domain socket in <TT>/tmp</TT>. 
+</P>
+<P CLASS="western"><TT>hostaddr</TT></P>
+<P CLASS="western" STYLE="margin-left: 0.49in">Numeric IP address of
+host to connect to. This should be in the standard IPv4 address
+format, e.g., <TT>172.28.40.9</TT>. If your machine supports IPv6,
+you can also use those addresses. TCP/IP communication is always used
+when a nonempty string is specified for this parameter. 
+</P>
+<P CLASS="western" STYLE="margin-left: 0.49in">Using <TT>hostaddr</TT>
+instead of <TT>host</TT> allows the application to avoid a host name
+look-up, which may be important in applications with time
+constraints. However, Kerberos authentication requires the host name.
+The following therefore applies: If <TT>host</TT> is specified
+without <TT>hostaddr</TT>, a host name lookup occurs. If <TT>hostaddr</TT>
+is specified without <TT>host</TT>, the value for <TT>hostaddr</TT>
+gives the remote address. When Kerberos is used, a reverse name query
+occurs to obtain the host name for Kerberos. If both <TT>host</TT>
+and <TT>hostaddr</TT> are specified, the value for <TT>hostaddr</TT>
+gives the remote address; the value for <TT>host</TT> is ignored,
+unless Kerberos is used, in which case that value is used for
+Kerberos authentication. (Note that authentication is likely to fail
+if libpq is passed a host name that is not the name of the machine at
+<TT>hostaddr</TT>.) Also, <TT>host</TT> rather than <TT>hostaddr</TT>
+is used to identify the connection in <TT>$HOME/.pgpass</TT>. 
+</P>
+<P CLASS="western" STYLE="margin-left: 0.49in">Without either a host
+name or host address, libpq will connect using a local Unix domain
+socket. 
+</P>
+<P CLASS="western"><TT>port</TT></P>
+<P CLASS="western" STYLE="margin-left: 0.49in"><A NAME="AEN19977"></A>
+Port number to connect to at the server host, or socket file name
+extension for Unix-domain connections. 
+</P>
+<P CLASS="western"><TT>dbname</TT></P>
+<P CLASS="western" STYLE="margin-left: 0.49in">The database name.
+Defaults to be the same as the user name. 
+</P>
+<P CLASS="western"><TT>user</TT></P>
+<P CLASS="western" STYLE="margin-left: 0.49in">PostgreSQL user name
+to connect as. 
+</P>
+<P CLASS="western"><TT>password</TT></P>
+<P CLASS="western" STYLE="margin-left: 0.49in">Password to be used if
+the server demands password authentication. 
+</P>
+<P CLASS="western"><TT>connect_timeout</TT></P>
+<P CLASS="western" STYLE="margin-left: 0.49in">Maximum wait for
+connection, in seconds (write as a decimal integer string). Zero or
+not specified means wait indefinitely. It is not recommended to use a
+timeout of less than 2 seconds. 
+</P>
+<P CLASS="western"><TT>options</TT></P>
+<P CLASS="western" STYLE="margin-left: 0.49in">Command-line options
+to be sent to the server. 
+</P>
+<P CLASS="western"><TT>sslmode</TT></P>
+<P CLASS="western" STYLE="margin-left: 0.49in">This option determines
+whether or with what priority an SSL connection will be negotiated
+with the server. There are four modes: <TT>disable</TT> will attempt
+only an unencrypted SSL connection; <TT>allow</TT> will negotiate,
+trying first a non-SSL connection, then if that fails, trying an SSL
+connection; <TT>prefer</TT> (the default) will negotiate, trying
+first an SSL connection, then if that fails, trying a regular non-SSL
+connection; <TT>require</TT> will try only an SSL connection. 
+</P>
+<P CLASS="western" STYLE="margin-left: 0.49in"><A NAME="AEN20033"></A>
+If PostgreSQL is compiled without SSL support, using option <TT>require</TT>
+will cause an error, and options <TT>allow</TT> and <TT>prefer</TT>
+will be tolerated but libpq will be unable to negotiate an SSL
+connection. 
+</P>
+<P CLASS="western"><TT>service</TT></P>
+<P CLASS="western" STYLE="margin-left: 0.49in">Service name to use
+for additional parameters. It specifies a service name in
+<TT>pg_service.conf</TT> that holds additional connection parameters.
+This allows applications to specify only a service name so connection
+parameters can be centrally maintained. See
+<TT><I>PREFIX</I></TT><TT>/share/pg_service.conf.sample</TT> for
+information on how to set up the file. 
+</P>
+<P CLASS="western" STYLE="margin-left: 0.49in">If any parameter is
+unspecified, then the corresponding environment variable is checked.
+If the environment variable is not set either, then built-in defaults
+are used. 
+</P>
+<H2 CLASS="western">Connection Object</H2>
+<H3 CLASS="western">con:<I>escape(string)</I></H3>
+<P CLASS="western"><I>Escapes a string for safe use in SQL queries.</I>
+</P>
+<P CLASS="western" STYLE="font-style: normal; font-weight: medium">Returns
+a properly escaped string.</P>
+<P CLASS="western">Use this method to escape a string that you will
+be using in a SQL query without parameters. Note that using
+parameters in your queries is <B>highly </B><SPAN STYLE="font-weight: medium">recommended
+as it is more efficient and secure. </SPAN><B>Do not</B><SPAN STYLE="font-weight: medium">
+use this method when executing a SQL command with parameters. </SPAN>
+</P>
+<H3 CLASS="western"><B><SPAN STYLE="font-style: normal">con:exec</SPAN>(<I>command,
+{parameters}, {param count}</I>)</B></H3>
+<P CLASS="western" STYLE="font-weight: medium"><I>Submits a command
+to the server and waits for the result, with the optional ability to
+pass parameters separately from the SQL command text. </I>
+</P>
+<P CLASS="western" STYLE="font-style: normal; font-weight: medium">Returns
+a result object and a error message. If there is an error the
+connection object will be <B>nil</B> and the error message will be in
+plain text.</P>
+<P CLASS="western" STYLE="font-weight: medium"><SPAN STYLE="font-style: normal">When
+not using parameters, it is allowed to include multiple SQL commands
+(separated by semicolons) in the command string. Multiple queries
+sent in a single call are processed in a single transaction, unless
+there are explicit </SPAN><TT><SPAN STYLE="font-style: normal">BEGIN</SPAN></TT><SPAN STYLE="font-style: normal">/</SPAN><TT><SPAN STYLE="font-style: normal">COMMIT</SPAN></TT><SPAN STYLE="font-style: normal">
+commands included in the query string to divide it into multiple
+transactions. Note however that the returned result object includes
+only the result of the last command executed from the string. Should
+one of the commands fail, processing of the string stops with it and
+the returned error message describes the error condition.</SPAN></P>
+<P CLASS="western"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: medium">When
+using parameters, PostgreSQL allows at most one SQL command in the
+given string. (There can be semicolons in it, but not more than one
+nonempty command.) This is a limitation of the underlying protocol,
+but has some usefulness as an extra defense against SQL-injection
+attacks. Parameters are referred to in the command string as </SPAN></SPAN><TT><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: medium">$1</SPAN></SPAN></TT><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: medium">,
+</SPAN></SPAN><TT><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: medium">$2</SPAN></SPAN></TT><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: medium">,
+etc. If you specify the parameter count, then SQL NULLS will be used
+when Lua </SPAN></SPAN><SPAN STYLE="font-style: normal"><B>nils</B></SPAN><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: medium">
+are passed as parameter values.</SPAN></SPAN></P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; font-style: normal; font-weight: medium; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<P CLASS="code-western" STYLE="font-style: normal">-- simple query
+with no parameters</P>
+<P CLASS="code-western" STYLE="font-style: normal">rs, errmsg =
+con:exec(&ldquo;select * from foobar&rdquo;)</P>
+<P CLASS="code-western" STYLE="font-style: normal">if not rs then</P>
+<P CLASS="code-western" STYLE="font-style: normal">	print(string.format(&ldquo;SQL
+Error: %s&rdquo;, errmsg))</P>
+<P CLASS="code-western" STYLE="font-style: normal">end</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<P CLASS="code-western" STYLE="font-style: normal">-- query with
+parameters</P>
+<P CLASS="code-western" STYLE="font-style: normal">rs, errmsg =
+con:exec(&ldquo;select * from foobar where foo = $1 and bar = $2&rdquo;,
+{3, &ldquo;B&rdquo;})</P>
+<P CLASS="code-western" STYLE="font-style: normal">if not rs then</P>
+<P CLASS="code-western" STYLE="font-style: normal">	print(string.format(&ldquo;SQL
+Error: %s&rdquo;, errmsg))</P>
+<P CLASS="code-western" STYLE="font-style: normal">end</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<H3 CLASS="western">con:close()</H3>
+<P CLASS="western"><I>Closes the connection to the server. Also frees
+memory used by the libpq library.</I></P>
+<P CLASS="western">This method is optional and the use of it is
+<B>discouraged</B>, as a semaphore-based invocation of this is
+performed within Lua's standard garbage collection. This function
+will be automatically called when the connection object goes out of
+scope or is set to <B>nil</B><SPAN STYLE="font-weight: medium">.</SPAN></P>
+<H2 CLASS="western">Result Object</H2>
+<H3 CLASS="western">rs:count()</H3>
+<P CLASS="western"><I>Returns the rows found/affected by the SQL
+command.</I></P>
+<P CLASS="western"><SPAN STYLE="font-style: normal">If the </SPAN><SPAN STYLE="font-style: normal">SQL</SPAN><SPAN STYLE="font-style: normal">
+command that generated the result was a </SPAN><TT><SPAN STYLE="font-style: normal">SELECT</SPAN></TT><SPAN STYLE="font-style: normal">,
+this will return the number of rows in the query result. If the </SPAN><SPAN STYLE="font-style: normal">SQL</SPAN><SPAN STYLE="font-style: normal">
+command was </SPAN><TT><SPAN STYLE="font-style: normal">INSERT</SPAN></TT><SPAN STYLE="font-style: normal">,
+</SPAN><TT><SPAN STYLE="font-style: normal">UPDATE</SPAN></TT><SPAN STYLE="font-style: normal">,
+</SPAN><TT><SPAN STYLE="font-style: normal">DELETE</SPAN></TT><SPAN STYLE="font-style: normal">,
+</SPAN><TT><SPAN STYLE="font-style: normal">MOVE</SPAN></TT><SPAN STYLE="font-style: normal">,
+or </SPAN><TT><SPAN STYLE="font-style: normal">FETCH</SPAN></TT><SPAN STYLE="font-style: normal">,
+this returns the number of rows affected. If the command was anything
+else, it returns 0. </SPAN>
+</P>
+<H3 CLASS="western" STYLE="font-style: normal">rs:fetch()</H3>
+<P CLASS="western"><I>Retrieves the current row from the result set. </I>
+</P>
+<P CLASS="western" STYLE="font-style: normal">A table with the data
+for the current row indexed by both column number and column name is
+returned. Result data is returned in native Lua types as follows:
+null = nil, bool = boolean, int2/int4/int8/float4/float8/numeric =
+number, all else = string using the current database and connection
+default formatting. If there are no more rows available, <B>nil</B><SPAN STYLE="font-weight: medium">
+is returned.</SPAN></P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; font-weight: medium; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<P CLASS="code-western">d = rs:fetch()</P>
+<P CLASS="code-western">while d then</P>
+<P CLASS="code-western">	print(string.format(&ldquo;foo = %s, bar =
+%s&rdquo;, d[2], d[2]))</P>
+<P CLASS="code-western">	print(string.format(&ldquo;foo = %s, bar =
+%s&rdquo;, d.foo, d.bar))</P>
+<P CLASS="code-western">	d = rs:fetch()</P>
+<P CLASS="code-western">end</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<H3 CLASS="western">rs:cols()</H3>
+<P CLASS="western"><I>Result object column iterator for use in
+generic &ldquo;for&rdquo; loops.</I></P>
+<P CLASS="western" STYLE="font-style: normal">This is an iterator
+that is used to retrieve the column schema for a result set. A
+numeric column index (starting with 1) and column name is returned.
+Column names are returned as Lua strings, using the current database
+and connection default formatting.</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<P CLASS="code-western">for i, n in rs:cols() do</P>
+<P CLASS="code-western">	print(string.format(&ldquo;column number =
+%d, column name = %d&rdquo;, i, n))</P>
+<P CLASS="code-western">end</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<H3 CLASS="western">rs:rows()</H3>
+<P CLASS="description-western">Result object row iterator for use in
+generic &ldquo;for&rdquo; loops.</P>
+<P CLASS="western" STYLE="font-style: normal">This is an iterator
+that is used to retrieve the rows for a result set. A table with the
+data for the current row indexed by both column number and column
+name is returned. Result data is returned in native Lua types as
+follows: null = nil, bool = boolean,
+int2/int4/int8/float4/float8/numeric = number, all else = string
+using the current database and connection default formatting.</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; font-style: normal; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<P CLASS="code-western">-- access by column number</P>
+<P CLASS="code-western">for d in rs:rows() do</P>
+<P CLASS="code-western">	for i, v in ipairs(d) do</P>
+<P CLASS="code-western">		print(string.format(&ldquo;column number =
+%d, value = %d&rdquo;, i, v))</P>
+<P CLASS="code-western">	end</P>
+<P CLASS="code-western">end</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<P CLASS="code-western">-- access by column name</P>
+<P CLASS="code-western">for d in rs:rows() do</P>
+<P CLASS="code-western">	print(string.format(&ldquo;foo = %s, bar =
+%s&rdquo;, d.foo, d.bar))</P>
+<P CLASS="code-western">end</P>
+<P CLASS="western" STYLE="margin-top: 0in; margin-bottom: 0in; background: transparent; page-break-inside: auto; page-break-before: auto; page-break-after: auto">
+<BR>
+</P>
+<H3 CLASS="western">rs:clear()</H3>
+<P CLASS="western"><I>Frees the storage associated with a result set.
+</I>
+</P>
+<P CLASS="western" STYLE="font-style: normal">This method is optional
+and the of it use is <B>discouraged</B>, as a semaphore-based
+invocation of this is performed within Lua's standard garbage
+collection. This function will be automatically called when the
+result object goes out of scope or is set to <B>nil</B><SPAN STYLE="font-weight: medium">.</SPAN></P>
+</BODY>
+</HTML>
