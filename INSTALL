@@ -1,0 +1,16 @@
+To install simply edit the Makefile to point to your Lua and libpq installations:
+
+-- # Lua setup
+-- LUA= /usr/local
+-- LUAINC= $(LUA)/include/lua51
+-- LUALIB= $(LUA)/lib/lua51
+-- LUABIN= $(LUA)/bin
+--
+-- # libpq setup
+-- LPQ= /usr/local
+-- LPQINC= $(LPQ)/include
+-- LPQLIB= $(LPQ)/lib
+
+The run 'make' and copy the pgsql.so/dll to somewhere in the Lua package.path (usually /usr/local/lib/lua/5.1)
+
+Have fun!

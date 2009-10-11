@@ -1,0 +1,31 @@
+2008.04.01
+
+added optional count argument to con:exec in order to support null (Lua nil) parameters
+
+2008.03.37
+
+changed to work with older (7.3, 8.1) libpq versions
+updated license to reflect new ownership
+
+2008.03.24
+
+wrapped libpq connection and result structures
+moved object state from Lua registry to wrapper structures 
+
+2008.03.23
+
+moved col() and row() iterators to result object
+result data is now converted to native types: 
+    null -> nil, 
+    bool -> boolean, 
+    int2/int4/int8/float4/float8/numeric -> number, 
+    all else -> string
+
+2008.03.22
+
+cleaned up source code, added comments
+added usage documentation (manual)
+
+2008.03.20
+
+initial public release
