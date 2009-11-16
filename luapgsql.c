@@ -11,19 +11,19 @@ void pg_notice(void *arg, const char *message) {
 #endif
 }
 
-/* check and return pointer */ 
+/* check and return pointer */
 void *luaL_checkpointer(lua_State* L, int i) {
 	luaL_checktype(L, i, LUA_TLIGHTUSERDATA);
 	return lua_touserdata(L, i);
 }
 
-/* check and return connection object parameter */ 
+/* check and return connection object parameter */
 con_t *luaL_checkconn(lua_State* L, int i) {
 	luaL_checkudata(L, i, TYPE_CONNECTION);
    	return lua_toconn(L, i);
 }
 
-/* check and return result object parameter */ 
+/* check and return result object parameter */
 rs_t *luaL_checkresult(lua_State* L, int i) {
 	luaL_checkudata(L, i, TYPE_RESULT);
    	return lua_toresult(L, i);
@@ -98,7 +98,7 @@ void lua_pushpgdata(lua_State *L, PGresult *rs, int row, int col) {
 
 /* Use the Lua registry to store a pointer, name, and an unsigned int for our module */
 /* val = -1 reads the current stored value */
-int lua_registry(lua_State *L, void *ptr, const char *name, int val) { 
+int lua_registry(lua_State *L, void *ptr, const char *name, int val) {
 	char tag[32];
 	int r = 0;
 	if (!ptr || !name) return 0;
@@ -128,17 +128,17 @@ static const luaL_Reg R_pg_functions[] = {
 static const luaL_Reg R_con_methods[] = {
 	{"escape", L_con_escape},
 	{"exec", L_con_exec},
-	{"close", L_con_close}, 
+	{"close", L_con_close},
 	{NULL, NULL}
 };
 
 /* result object methods */
 static const luaL_Reg R_res_methods[] = {
-	{"count", L_res_count}, 
-	{"fetch", L_res_fetch}, 
+	{"count", L_res_count},
+	{"fetch", L_res_fetch},
 	{"cols", L_res_cols},
 	{"rows", L_res_rows},
-	{"clear", L_res_clear},  
+	{"clear", L_res_clear},
 	{NULL, NULL}
 };
 
@@ -150,20 +150,20 @@ LUALIB_API int luaopen_pgsql(lua_State *L) {
 	lua_pushliteral(L,MYVERSION);
 	lua_settable(L,-3);
 	/* register the connection object type */
-	luaL_newmetatable(L, TYPE_CONNECTION); 
-	lua_pushvalue(L, -1); 
+	luaL_newmetatable(L, TYPE_CONNECTION);
+	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
-	luaL_register(L, NULL, R_con_methods); 
+	luaL_register(L, NULL, R_con_methods);
 	lua_pushcfunction(L, L_con_gc);
-	lua_setfield(L, -2, "__gc"); 
+	lua_setfield(L, -2, "__gc");
 	lua_pop(L, 2);
 	/* register the result object type */
-	luaL_newmetatable(L, TYPE_RESULT); 
-	lua_pushvalue(L, -1); 
-	lua_setfield(L, -2, "__index"); 
-	luaL_register(L, NULL, R_res_methods); 
+	luaL_newmetatable(L, TYPE_RESULT);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+	luaL_register(L, NULL, R_res_methods);
 	lua_pushcfunction(L, L_res_gc);
-	lua_setfield(L, -2, "__gc"); 
+	lua_setfield(L, -2, "__gc");
 	lua_pop(L, 2);
 	/* return the library handle */
 	return 1;
@@ -198,19 +198,20 @@ LUALIB_API int L_con_escape(lua_State *L) {
 	const char *src; char *dst;
 	/* con_t *con = luaL_checkconn(L, 1); */
 	src = luaL_checklstring(L, 2, &len);
-	dst = malloc(sizeof(char) * (len * 2 + 1));	
+	dst = malloc(sizeof(char) * (len * 2 + 1));
 	/* PQescapeStringConn(con->ptr, dst, src, len, NULL); */
 	PQescapeString(dst, src, len);
 	lua_pushstring(L, dst);
+	free(dst);
 	return 1;
 }
 
 /* con:exec - execute a sql command, with or without parameters */
 LUALIB_API int L_con_exec(lua_State *L) {
 	PGresult *rs = NULL;
-	const char **param; 
+	const char **param = NULL;
 	int param_count;
-	char *bool_t[2] = {"FALSE", "TRUE"}; 
+	char *bool_t[2] = {"FALSE", "TRUE"};
 	con_t *con = luaL_checkconn(L, 1);
 	const char *sql = luaL_checkstring(L, 2);
 	int i;
@@ -225,7 +226,7 @@ LUALIB_API int L_con_exec(lua_State *L) {
 		} else {
 			luaL_checktype(L, 3, LUA_TTABLE);
 			param = malloc(sizeof(char *));
-			if (lua_gettop(L) >= 4) { 
+			if (lua_gettop(L) >= 4) {
 				/* parameter count given, loop through the array */
 				param_count = luaL_checkinteger(L, 4);
 				param = malloc(sizeof(char *) * param_count);
@@ -236,7 +237,7 @@ LUALIB_API int L_con_exec(lua_State *L) {
 						param[i] = bool_t[lua_toboolean(L, -1)];
 					} else {
 						param[i] = lua_tostring(L, -1);
-					} 
+					}
 					/* removes 'value' */
 					lua_pop(L, 1);
 				}
@@ -246,24 +247,23 @@ LUALIB_API int L_con_exec(lua_State *L) {
 				lua_pushnil(L);  /* first key */
 				while (lua_next(L, 3) != 0) {
 					param_count++;
-		   			if (param) {
-						param = realloc(param, sizeof(char *) * param_count);
-					} else param = malloc(sizeof(char *));
+	   			    param = realloc(param, sizeof(char *) * param_count);
 					/* 'key' (at index -2) and 'value' (at index -1) */
 					luaL_checktype(L, -2, LUA_TNUMBER);
 					if (lua_type(L, -1) == LUA_TBOOLEAN) {
 						param[param_count - 1] = bool_t[lua_toboolean(L, -1)];
 					} else {
 						param[param_count - 1] = lua_tostring(L, -1);
-					} 
+					}
 					/* removes 'value'; keeps 'key' for next iteration */
 					lua_pop(L, 1);
 				}
-			}			
+			}
 			rs = PQexecParams(con->ptr, sql, param_count, NULL, param, NULL, NULL, 0);
+			if (params) free(params);
 		}
 		if (rs) {
-			ExecStatusType status = PQresultStatus(rs); 
+			ExecStatusType status = PQresultStatus(rs);
 			if (status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK) {
 				lua_pushresult(L, rs);
 				lua_pushnil(L);
@@ -317,7 +317,7 @@ LUALIB_API int L_res_count(lua_State *L) {
 	int n;
 	rs_t *rs = luaL_checkresult(L, 1);
 	if (PQresultStatus(rs->ptr) == PGRES_TUPLES_OK) {
-		lua_pushinteger(L, PQntuples(rs->ptr));	
+		lua_pushinteger(L, PQntuples(rs->ptr));
 	} else if (PQresultStatus(rs->ptr) == PGRES_COMMAND_OK) {
 		lua_pushstring(L, PQcmdTuples(rs->ptr));
 		n = lua_tonumber(L, -1);
@@ -352,7 +352,7 @@ LUALIB_API int L_res_fetch(lua_State *L) {
 		return 1;
 	} else {
 		/* no more values to return */
-		return 0;  
+		return 0;
 	}
 }
 
@@ -361,7 +361,7 @@ LUALIB_API int L_res_cols(lua_State *L) {
 	rs_t *rs = luaL_checkresult(L, 1);
 	lua_pushlightuserdata(L, rs->ptr);
 	/* start at column 0 */
-	lua_pushinteger(L, 0); 
+	lua_pushinteger(L, 0);
 	lua_pushcclosure(L, L_res_col_iter, 2);
 	return 1;
 }
@@ -389,7 +389,7 @@ LUALIB_API int L_res_rows(lua_State *L) {
 	rs_t *rs = luaL_checkresult(L, 1);
 	lua_pushlightuserdata(L, rs->ptr);
 	/* start at row 0 */
-	lua_pushinteger(L, 0); 
+	lua_pushinteger(L, 0);
 	lua_pushcclosure(L, L_res_row_iter, 2);
 	return 1;
 }
@@ -419,7 +419,7 @@ LUALIB_API int L_res_row_iter (lua_State *L) {
 			lua_pop(L, 1);
 		}
 		/* next row */
-		lua_pushinteger(L, row + 1); 
+		lua_pushinteger(L, row + 1);
 		lua_replace(L, lua_upvalueindex(2));
 		return 1;
 	} else {
