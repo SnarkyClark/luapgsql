@@ -260,7 +260,7 @@ LUALIB_API int L_con_exec(lua_State *L) {
 				}
 			}
 			rs = PQexecParams(con->ptr, sql, param_count, NULL, param, NULL, NULL, 0);
-			if (params) free(params);
+			if (param) free(param);
 		}
 		if (rs) {
 			ExecStatusType status = PQresultStatus(rs);
