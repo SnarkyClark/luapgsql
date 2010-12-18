@@ -65,6 +65,8 @@ LUALIB_API int L_connect(lua_State *L);
 LUALIB_API int L_con_escape(lua_State *L);
 /* con:exec - execute a sql command, with or without parameters */
 LUALIB_API int L_con_exec(lua_State *L);
+/* con:notifywait - wait for any NOTIFY message from server */
+LUALIB_API int L_con_notifywait(lua_State *L);
 /* con:close - close the connection and free the client resources */
 LUALIB_API int L_con_close(lua_State *L);
 /* connection object garbage collector */

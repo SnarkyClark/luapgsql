@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <sys/select.h>
 
 #include "luapgsql.h"
 
@@ -149,6 +150,7 @@ static const luaL_Reg R_pg_functions[] = {
 static const luaL_Reg R_con_methods[] = {
 	{"escape", L_con_escape},
 	{"exec", L_con_exec},
+	{"notifywait", L_con_notifywait},
 	{"close", L_con_close},
 	{NULL, NULL}
 };
@@ -286,6 +288,44 @@ LUALIB_API int L_con_exec(lua_State *L) {
 		lua_pushliteral(L, "Connection Failure");
 	}
 	return 2;
+}
+
+/* con:notifywait - wait for any NOTIFY message from server */
+LUALIB_API int L_con_notifywait(lua_State *L) {
+	con_t *con = luaL_checkconn(L, 1);
+	int sock;
+	fd_set input_mask;
+	struct timeval tv;
+	struct timeval *tvp;
+	PGnotify *notify;
+	int nnotifies = 0;
+	if (lua_gettop(L) >= 2) {
+		lua_Number t = lua_tonumber(L,2);
+		tv.tv_sec = t;
+		tv.tv_usec = (t - tv.tv_sec) * 1000000;
+		tvp = &tv;
+	} else {
+		tvp = NULL;
+	}
+	sock = PQsocket(con->ptr);
+	/* Now check for input */
+	do {
+		PQconsumeInput(con->ptr);
+		while ((notify = PQnotifies(con->ptr)) != NULL)
+		{
+			PQfreemem(notify);
+			nnotifies++;
+		}
+		if (nnotifies > 0) {
+			tv.tv_sec = 0;
+			tv.tv_usec = 0;
+			tvp = &tv;
+		}
+		FD_ZERO(&input_mask);
+		FD_SET(sock, &input_mask);
+	} while (select(sock + 1, &input_mask, NULL, NULL, tvp) > 0);
+	lua_pushinteger(L, nnotifies);
+	return 1;
 }
 
 /* con:close - close the connection and free the client resources */
