@@ -3,7 +3,7 @@
 #include <libpq-fe.h>
 
 #define MYNAME "pgsql"
-#define MYVERSION MYNAME " library for " LUA_VERSION " 2008.04.01"
+#define MYVERSION MYNAME " library for " LUA_VERSION " 2011.31.07"
 
 #define TYPE_CONNECTION "PgSQL.Connection"
 #define TYPE_RESULT "PgSQL.Result"
@@ -77,7 +77,7 @@ LUALIB_API int L_con_gc(lua_State *L);
 
 /* rs:count - the number of rows returned OR affected by the sql command */
 LUALIB_API int L_res_count(lua_State *L);
-/* rs:fetch - tranditional 'fetch' interface */
+/* rs:fetch - traditional 'fetch' interface */
 LUALIB_API int L_res_fetch(lua_State *L);
 /* rs:cols generator */
 LUALIB_API int L_res_cols(lua_State *L);
