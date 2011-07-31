@@ -1,36 +1,37 @@
 #include <stdlib.h>
+#include <sys/select.h>
 
 #include "luapgsql.h"
 
 /** private helper functions **/
 
 /* server NOTICE message handler */
-void pg_notice(void *arg, const char *message) {
+static void pg_notice(void *arg, const char *message) {
 #ifdef DEBUG
 	fprintf(stderr, "debug.notice [%s]\n", message);
 #endif
 }
 
 /* check and return pointer */
-void *luaL_checkpointer(lua_State* L, int i) {
+static void *luaL_checkpointer(lua_State* L, int i) {
 	luaL_checktype(L, i, LUA_TLIGHTUSERDATA);
 	return lua_touserdata(L, i);
 }
 
 /* check and return connection object parameter */
-con_t *luaL_checkconn(lua_State* L, int i) {
+static con_t *luaL_checkconn(lua_State* L, int i) {
 	luaL_checkudata(L, i, TYPE_CONNECTION);
    	return lua_toconn(L, i);
 }
 
 /* check and return result object parameter */
-rs_t *luaL_checkresult(lua_State* L, int i) {
+static rs_t *luaL_checkresult(lua_State* L, int i) {
 	luaL_checkudata(L, i, TYPE_RESULT);
    	return lua_toresult(L, i);
 }
 
 /* push a connection object on the stack */
-void lua_pushconn(lua_State *L, PGconn *con) {
+static void lua_pushconn(lua_State *L, PGconn *con) {
 	con_t *p = lua_newconn(L);
 	luaL_getmetatable(L, TYPE_CONNECTION);
 	lua_setmetatable(L, -2);
@@ -43,7 +44,7 @@ void lua_pushconn(lua_State *L, PGconn *con) {
 }
 
 /* push a result object on the stack */
-void lua_pushresult(lua_State *L, PGresult *rs) {
+static void lua_pushresult(lua_State *L, PGresult *rs) {
 	rs_t *p = lua_newresult(L);
 	luaL_getmetatable(L, TYPE_RESULT);
 	lua_setmetatable(L, -2);
@@ -57,8 +58,8 @@ void lua_pushresult(lua_State *L, PGresult *rs) {
 #endif
 }
 
-/* push a table onto the stack containing a row of data */
-void lua_pushpgdata(lua_State *L, PGresult *rs, int row, int col) {
+/* get one value from PGresult and push it onto the Lua stack */
+static void lua_pushpgdata(lua_State *L, PGresult *rs, int row, int col) {
 	const char *val;
 	double temp;
 	/* grab the value */
@@ -96,6 +97,26 @@ void lua_pushpgdata(lua_State *L, PGresult *rs, int row, int col) {
 	}
 }
 
+/* push a table onto the stack containing a row of data */
+static void lua_pushpgrow(lua_State *L, PGresult *rs, int row) {
+	int col;
+	int cols = PQnfields(rs);
+	lua_createtable(L, cols, cols);
+	for (col = 0; col < cols; col++) {
+		/* grab the data */
+		lua_pushpgdata(L, rs, row, col);
+		/* give us an indexed ... */
+		lua_pushvalue(L, -1);
+		lua_rawseti(L, -3, col + 1);
+		/* ... and assoc array */
+		lua_pushstring(L, PQfname(rs, col));
+		lua_pushvalue(L, -2);
+		lua_settable(L, -4);
+		lua_pop(L, 1);
+	}
+}
+
+#if 0
 /* Use the Lua registry to store a pointer, name, and an unsigned int for our module */
 /* val = -1 reads the current stored value */
 int lua_registry(lua_State *L, void *ptr, const char *name, int val) {
@@ -114,6 +135,7 @@ int lua_registry(lua_State *L, void *ptr, const char *name, int val) {
 	}
 	return r;
 }
+#endif
 
 
 /** module registration **/
@@ -128,6 +150,7 @@ static const luaL_Reg R_pg_functions[] = {
 static const luaL_Reg R_con_methods[] = {
 	{"escape", L_con_escape},
 	{"exec", L_con_exec},
+	{"notifywait", L_con_notifywait},
 	{"close", L_con_close},
 	{NULL, NULL}
 };
@@ -225,39 +248,23 @@ LUALIB_API int L_con_exec(lua_State *L) {
 			rs = PQexec(con->ptr, sql);
 		} else {
 			luaL_checktype(L, 3, LUA_TTABLE);
-			param = malloc(sizeof(char *));
 			if (lua_gettop(L) >= 4) {
 				/* parameter count given, loop through the array */
 				param_count = luaL_checkinteger(L, 4);
-				param = malloc(sizeof(char *) * param_count);
-				for (i = 0; i < param_count; i++) {
-					lua_pushinteger(L, i + 1);
-					lua_gettable(L, 3);
-					if (lua_type(L, -1) == LUA_TBOOLEAN) {
-						param[i] = bool_t[lua_toboolean(L, -1)];
-					} else {
-						param[i] = lua_tostring(L, -1);
-					}
-					/* removes 'value' */
-					lua_pop(L, 1);
-				}
 			} else {
-				/* otherwise we iterate through the array */
-				param_count = 0;
-				lua_pushnil(L);  /* first key */
-				while (lua_next(L, 3) != 0) {
-					param_count++;
-	   			    param = realloc(param, sizeof(char *) * param_count);
-					/* 'key' (at index -2) and 'value' (at index -1) */
-					luaL_checktype(L, -2, LUA_TNUMBER);
-					if (lua_type(L, -1) == LUA_TBOOLEAN) {
-						param[param_count - 1] = bool_t[lua_toboolean(L, -1)];
-					} else {
-						param[param_count - 1] = lua_tostring(L, -1);
-					}
-					/* removes 'value'; keeps 'key' for next iteration */
-					lua_pop(L, 1);
+				param_count = luaL_getn(L, 3);
+			}
+			if (param_count>0)
+				param = malloc(sizeof(char *) * param_count);
+			for (i = 0; i < param_count; i++) {
+				lua_rawgeti(L, 3, i + 1);
+				if (lua_type(L, -1) == LUA_TBOOLEAN) {
+					param[i] = bool_t[lua_toboolean(L, -1)];
+				} else {
+					param[i] = lua_tostring(L, -1);
 				}
+				/* removes 'value' */
+				lua_pop(L, 1);
 			}
 			rs = PQexecParams(con->ptr, sql, param_count, NULL, param, NULL, NULL, 0);
 			if (param) free(param);
@@ -281,6 +288,44 @@ LUALIB_API int L_con_exec(lua_State *L) {
 		lua_pushliteral(L, "Connection Failure");
 	}
 	return 2;
+}
+
+/* con:notifywait - wait for any NOTIFY message from server */
+LUALIB_API int L_con_notifywait(lua_State *L) {
+	con_t *con = luaL_checkconn(L, 1);
+	int sock;
+	fd_set input_mask;
+	struct timeval tv;
+	struct timeval *tvp;
+	PGnotify *notify;
+	int nnotifies = 0;
+	if (lua_gettop(L) >= 2) {
+		lua_Number t = lua_tonumber(L,2);
+		tv.tv_sec = t;
+		tv.tv_usec = (t - tv.tv_sec) * 1000000;
+		tvp = &tv;
+	} else {
+		tvp = NULL;
+	}
+	sock = PQsocket(con->ptr);
+	/* Now check for input */
+	do {
+		PQconsumeInput(con->ptr);
+		while ((notify = PQnotifies(con->ptr)) != NULL)
+		{
+			PQfreemem(notify);
+			nnotifies++;
+		}
+		if (nnotifies > 0) {
+			tv.tv_sec = 0;
+			tv.tv_usec = 0;
+			tvp = &tv;
+		}
+		FD_ZERO(&input_mask);
+		FD_SET(sock, &input_mask);
+	} while (select(sock + 1, &input_mask, NULL, NULL, tvp) > 0);
+	lua_pushinteger(L, nnotifies);
+	return 1;
 }
 
 /* con:close - close the connection and free the client resources */
@@ -329,24 +374,10 @@ LUALIB_API int L_res_count(lua_State *L) {
 
 /* rs:fetch - tranditional 'fetch' interface */
 LUALIB_API int L_res_fetch(lua_State *L) {
-	int col;
 	rs_t *rs = luaL_checkresult(L, 1);
-	int cols = PQnfields(rs->ptr);
 	int rows = PQntuples(rs->ptr);
 	if (rs->row < rows) {
-		lua_createtable(L, cols, cols);
-		for (col = 0; col < cols; col++) {
-			/* grab the data */
-			lua_pushpgdata(L, rs->ptr, rs->row, col);
-			/* give us an indexed and assoc array */
-			lua_pushinteger(L, col + 1);
-			lua_pushvalue(L, -2);
-			lua_settable(L, -4);
-			lua_pushstring(L, PQfname(rs->ptr, col));
-			lua_pushvalue(L, -2);
-			lua_settable(L, -4);
-			lua_pop(L, 1);
-		}
+		lua_pushpgrow(L, rs->ptr, rs->row);
 		/* next row */
 		rs->row++;
 		return 1;
@@ -396,28 +427,15 @@ LUALIB_API int L_res_rows(lua_State *L) {
 
 /* rs:rows iterator */
 LUALIB_API int L_res_row_iter (lua_State *L) {
-	int row; int col;
-	int rows; int cols;
+	int row;
+	int rows;
 	PGresult *rs;
 	rs = (PGresult *)luaL_checkpointer(L, lua_upvalueindex(1));
 	/* current row */
 	row = luaL_checkinteger(L, lua_upvalueindex(2));
-	cols = PQnfields(rs);
 	rows = PQntuples(rs);
 	if (row < rows) {
-		lua_createtable(L, cols, cols);
-		for (col = 0; col < cols; col++) {
-			/* grab the data */
-			lua_pushpgdata(L, rs, row, col);
-			/* give us an indexed and assoc array */
-			lua_pushinteger(L, col + 1);
-			lua_pushvalue(L, -2);
-			lua_settable(L, -4);
-			lua_pushstring(L, PQfname(rs, col));
-			lua_pushvalue(L, -2);
-			lua_settable(L, -4);
-			lua_pop(L, 1);
-		}
+		lua_pushpgrow(L, rs, row);
 		/* next row */
 		lua_pushinteger(L, row + 1);
 		lua_replace(L, lua_upvalueindex(2));
@@ -453,5 +471,3 @@ LUALIB_API int L_res_gc(lua_State *L) {
 	}
 	return 0;
 }
-
-
