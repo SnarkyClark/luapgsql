@@ -97,7 +97,7 @@ static void lua_pushpgdata(lua_State *L, PGresult *rs, int row, int col) {
 	}
 }
 
-/* push a table onto the stack containing a row of data */
+/* push a table onto the stack containing a row of data from PGresult */
 static void lua_pushpgrow(lua_State *L, PGresult *rs, int row) {
 	int col;
 	int cols = PQnfields(rs);
