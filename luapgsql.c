@@ -232,7 +232,7 @@ LUALIB_API int L_con_exec(lua_State *L) {
 				/* parameter count given, use it */
 				param_count = luaL_checkinteger(L, 4);
 			} else {
-				/* parameter count not given, trust in the dubious force (luaL_getn) */
+				/* parameter count not given, trust in the force (luaL_getn) */
 				param_count = luaL_getn(L, 3);
 			}
 			/* mallocate params for PQexecParams */
