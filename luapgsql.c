@@ -82,13 +82,13 @@ static void lua_pushpgdata(lua_State *L, PGresult *rs, int row, int col) {
 		case INT8OID:
 		case FLOAT4OID:
 		case FLOAT8OID:
-		case NUMERICOID:
 			/* convert using Lua string -> number conversion for reliability */
 			lua_pushstring(L, val);
 			temp = lua_tonumber(L, -1);
 			lua_pop(L, 1);
 			lua_pushnumber(L, temp);
 			break;
+		case NUMERICOID:
 		default:
 			/* it's all just a string after that */
 			lua_pushstring(L, val);
@@ -97,12 +97,12 @@ static void lua_pushpgdata(lua_State *L, PGresult *rs, int row, int col) {
 	}
 }
 
-/* push a table onto the stack containing a row of data from PGresult */
+/* push a table onto the stack containing a row of data from PGresult - by edo1 */
 static void lua_pushpgrow(lua_State *L, PGresult *rs, int row) {
-	int col;
+	int i;
 	int cols = PQnfields(rs);
 	lua_createtable(L, cols, cols);
-	for (col = 0; col < cols; col++) {
+	for (i = 0; i < cols; i++) {
 		/* grab the data */
 		lua_pushpgdata(L, rs, row, col);
 		/* give us an indexed ... */
@@ -115,28 +115,6 @@ static void lua_pushpgrow(lua_State *L, PGresult *rs, int row) {
 		lua_pop(L, 1);
 	}
 }
-
-#if 0
-/* Use the Lua registry to store a pointer, name, and an unsigned int for our module */
-/* val = -1 reads the current stored value */
-int lua_registry(lua_State *L, void *ptr, const char *name, int val) {
-	char tag[32];
-	int r = 0;
-	if (!ptr || !name) return 0;
-	sprintf(tag, "PgSQL.%p.%s", ptr, name);
-	if (val < 0) {
-		lua_getfield(L, LUA_REGISTRYINDEX, tag);
-		r = lua_tointeger(L, -1);
-		lua_pop(L, 1);
-	} else {
-		lua_pushinteger(L, val);
-		lua_setfield(L, LUA_REGISTRYINDEX, tag);
-		r = val;
-	}
-	return r;
-}
-#endif
-
 
 /** module registration **/
 
@@ -245,17 +223,21 @@ LUALIB_API int L_con_exec(lua_State *L) {
 #endif
 	if (PQstatus(con->ptr) == CONNECTION_OK) {
 		if (lua_gettop(L) == 2) {
+			/* no parameters, just an 'ol fashioned query */
 			rs = PQexec(con->ptr, sql);
 		} else {
+			/* parameterized query */
 			luaL_checktype(L, 3, LUA_TTABLE);
 			if (lua_gettop(L) >= 4) {
-				/* parameter count given, loop through the array */
+				/* parameter count given, use it */
 				param_count = luaL_checkinteger(L, 4);
 			} else {
+				/* parameter count not given, trust in the dubious force (luaL_getn) */
 				param_count = luaL_getn(L, 3);
 			}
-			if (param_count>0)
-				param = malloc(sizeof(char *) * param_count);
+			/* mallocate params for PQexecParams */
+			if (param_count > 0) param = malloc(sizeof(char *) * param_count);
+			/* load params from Lua table into C array */
 			for (i = 0; i < param_count; i++) {
 				lua_rawgeti(L, 3, i + 1);
 				if (lua_type(L, -1) == LUA_TBOOLEAN) {
@@ -263,8 +245,6 @@ LUALIB_API int L_con_exec(lua_State *L) {
 				} else {
 					param[i] = lua_tostring(L, -1);
 				}
-				/* removes 'value' */
-				lua_pop(L, 1);
 			}
 			rs = PQexecParams(con->ptr, sql, param_count, NULL, param, NULL, NULL, 0);
 			if (param) free(param);
@@ -290,7 +270,7 @@ LUALIB_API int L_con_exec(lua_State *L) {
 	return 2;
 }
 
-/* con:notifywait - wait for any NOTIFY message from server */
+/* con:notifywait - wait for any NOTIFY message from server - by edo1 */
 LUALIB_API int L_con_notifywait(lua_State *L) {
 	con_t *con = luaL_checkconn(L, 1);
 	int sock;
