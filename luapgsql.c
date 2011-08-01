@@ -241,6 +241,7 @@ LUALIB_API int L_con_exec(lua_State *L) {
 			for (i = 0; i < param_count; i++) {
 				lua_rawgeti(L, 3, i + 1);
 				if (lua_type(L, -1) == LUA_TBOOLEAN) {
+					/* convert boolean into "TRUE" or "FALSE" */
 					param[i] = bool_t[lua_toboolean(L, -1)];
 				} else {
 					param[i] = lua_tostring(L, -1);
