@@ -99,10 +99,10 @@ static void lua_pushpgdata(lua_State *L, PGresult *rs, int row, int col) {
 
 /* push a table onto the stack containing a row of data from PGresult - by edo1 */
 static void lua_pushpgrow(lua_State *L, PGresult *rs, int row) {
-	int i;
+	int col;
 	int cols = PQnfields(rs);
 	lua_createtable(L, cols, cols);
-	for (i = 0; i < cols; i++) {
+	for (col = 0; col < cols; col++) {
 		/* grab the data */
 		lua_pushpgdata(L, rs, row, col);
 		/* give us an indexed ... */
