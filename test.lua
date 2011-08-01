@@ -1,10 +1,9 @@
+package.cpath = "./?.so"
 require("pgsql")
 
 db = {
-	host = "localhost",
 	dbname = "postgres",
-	user = "postgres",
-	password = "xxx",
+	user = "pgsql",
 	connect_timeout = 5
 }
 
