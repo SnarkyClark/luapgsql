@@ -246,6 +246,7 @@ LUALIB_API int L_con_exec(lua_State *L) {
 				} else {
 					param[i] = lua_tostring(L, -1);
 				}
+				lua_pop(L, 1);
 			}
 			rs = PQexecParams(con->ptr, sql, param_count, NULL, param, NULL, NULL, 0);
 			if (param) free(param);
