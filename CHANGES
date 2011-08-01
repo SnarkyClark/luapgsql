@@ -1,3 +1,7 @@
+2011.07.31
+
+added NOTIFY support as submitted by edo1
+
 2008.04.01
 
 added optional count argument to con:exec in order to support null (Lua nil) parameters
