@@ -1,6 +1,7 @@
 2011.07.31
 
 added NOTIFY support as submitted by edo1
+removed autoconvert for NUMERIC types, now stored as Lua strings
 
 2008.04.01
 
