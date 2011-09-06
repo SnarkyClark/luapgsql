@@ -1,1 +1,3 @@
-Lua-PgSQL is a lightweight binding of libpq (standard PostgreSQL C client library) for Lua. Includes iterators and parametrized queries, as well as basic NOTIFY support.
+Lua-PgSQL is a lightweight binding of libpq (standard PostgreSQL 
+C client library) for Lua. Includes iterators and parametrized 
+queries, as well as basic NOTIFY support.
