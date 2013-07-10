@@ -157,7 +157,7 @@ LUALIB_API int luaopen_pgsql(lua_State *L) {
 	luaL_register(L, NULL, R_con_methods);
 	lua_pushcfunction(L, L_con_gc);
 	lua_setfield(L, -2, "__gc");
-	lua_pop(L, 2);
+	lua_pop(L, 1);
 	/* register the result object type */
 	luaL_newmetatable(L, TYPE_RESULT);
 	lua_pushvalue(L, -1);
@@ -165,7 +165,7 @@ LUALIB_API int luaopen_pgsql(lua_State *L) {
 	luaL_register(L, NULL, R_res_methods);
 	lua_pushcfunction(L, L_res_gc);
 	lua_setfield(L, -2, "__gc");
-	lua_pop(L, 2);
+	lua_pop(L, 1);
 	/* return the library handle */
 	return 1;
 }
