@@ -3,7 +3,7 @@
 #include <libpq-fe.h>
 
 #define MYNAME "pgsql"
-#define MYVERSION MYNAME " library for " LUA_VERSION " 2011.07.31"
+#define MYVERSION MYNAME " library for " LUA_VERSION " 2015.03.04"
 
 #define TYPE_CONNECTION "PgSQL.Connection"
 #define TYPE_RESULT "PgSQL.Result"
