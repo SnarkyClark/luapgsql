@@ -199,7 +199,7 @@ LUALIB_API int L_con_escape(lua_State *L) {
 	const char *src; char *dst;
 	/* con_t *con = luaL_checkconn(L, 1); */
 	src = luaL_checklstring(L, 2, &len);
-	dst = malloc(sizeof(char) * (len * 2 + 1));
+	dst = calloc(len * 2 + 1, sizeof(char));
 	/* PQescapeStringConn(con->ptr, dst, src, len, NULL); */
 	PQescapeString(dst, src, len);
 	lua_pushstring(L, dst);
@@ -235,8 +235,8 @@ LUALIB_API int L_con_exec(lua_State *L) {
 				/* parameter count not given, trust in the force (luaL_getn) */
 				param_count = luaL_getn(L, 3);
 			}
-			/* mallocate params for PQexecParams */
-			if (param_count > 0) param = malloc(sizeof(char *) * param_count);
+			/* clear-allocate params for PQexecParams */
+			if (param_count > 0) param = calloc(param_count, sizeof(char *));
 			/* load params from Lua table into C array */
 			for (i = 0; i < param_count; i++) {
 				lua_rawgeti(L, 3, i + 1);
