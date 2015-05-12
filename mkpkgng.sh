@@ -14,22 +14,6 @@ error() {
 	exit 1
 }
 
-# Ask a yes / no question
-yesno() {
-        while :; do
-                echo -n "mkpkgng: $@ (yes/no) "
-                read answer
-                case $answer in
-                [Yy]|[Yy][Ee][Ss])
-                        return 0
-                        ;;
-                [Nn]|[Nn][Oo])
-                        return 1
-                        ;;
-                esac
-        done
-}
-
 #
 # Determine pkgng version and ABI
 #
@@ -80,7 +64,7 @@ prefix: /usr/local
 licenses: [MIT, BSD]
 catagories: [local]
 EOF
-cp "$srcdir/README" "$tmproot/+DESC"
+cp "README" "$tmproot/+DESC"
 
 #
 # Generate file list
