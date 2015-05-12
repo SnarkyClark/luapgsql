@@ -1,62 +1,40 @@
 # makefile for pgsql library for Lua
+PREFIX ?= /usr/local
 
 # Lua setup
-LUA= /usr/local
-LUAINC= $(LUA)/include/lua51
-LUALIB= $(LUA)/lib/lua51
-
-# these will probably work if Lua has been installed globally
-#LUA= /usr/local/
-#LUAINC= $(LUA)/include
-#LUALIB= $(LUA)/lib
-#LUABIN= $(LUA)/bin
+LUAINC = $(PREFIX)/include/lua51
+LUALIB = $(PREFIX)/lib/lua51
+LUAEXT = $(PREFIX)/lib/lua/5.1
 
 # libpq setup
-LPQ= /usr/local
-LPQINC= $(LPQ)/include
-LPQLIB= $(LPQ)/lib
+LPQINC = $(PREFIX)/include
+LPQLIB = $(PREFIX)/lib
  
 # probably no need to change anything below here
-CC= gcc
-CFLAGS= $(INCS) $(WARN) -O2 $G
-WARN= -ansi -pedantic -Wall
-INCS= -I$(LUAINC) -I$(LPQINC)
-LIBS= -L$(LUALIB) -L$(LPQLIB) -lpq
+#CC = gcc
+WARN = -ansi -pedantic -Wall
+INCS = -I$(LUAINC) -I$(LPQINC)
+LIBS = -L$(LUALIB) -L$(LPQLIB) -lpq
+FLAGS = -shared $(WARN) $(INCS) $(LIBS) 
+CFLAGS = -O2 -fPIC
 
-MYNAME= pgsql
-MYLIB= lua$(MYNAME)
+LIBNAME = pgsql
+SOURCES = lua$(LIBNAME).c
+HEADERS = lua$(LIBNAME).h
+OBJECTS = $(SOURCES:.c=.o)
+TARGET = $(LIBNAME).so
 
-OBJS= $(MYLIB).o
-#STATIC_OBJS= foobar.o
-T= $(MYNAME).so
+all:	$(TARGET)
 
-all:	so
-
-o:	$(MYLIB).o
-
-so:	$T
-
-$T:	$(OBJS)
-	$(CC) -o $@ -shared $(OBJS) $(STATIC_OBJS) $(LIBS) 
+$(TARGET): $(SOURCES) $(HEADERS)
+	$(CC) $(FLAGS) $(CFLAGS) -o $@ $(SOURCES)
 
 clean:
-	rm -f $(OBJS) $T core core.*
+	rm -f $(OBJECTS) $(TARGET) core core.*
 
-#doc:
-#	@echo "$(MYNAME) library:"
-#	@fgrep '/**' $(MYLIB).c | cut -f2 -d/ | tr -d '*' | sort | column
+install: $(TARGET)
+	install -d $(DESTDIR)$(LUAEXT)
+	install -vs $(TARGET) $(DESTDIR)$(LUAEXT)
 
-# distribution
-
-D= $(MYNAME)
-A= $(MYLIB).tgz
-TOTAR= Makefile,$(MYLIB).c,test.lua
-
-tar:	clean
-	tar zcvf $A -C .. $D
-#	tar zcvf $A -C .. $D/{$(TOTAR)}
-
-distr:	tar
-	touch -r $A .stamp
-
-# eof
+uninstall:
+	-rm $(DESTDIR)$(LUAEXT)/$(TARGET)
