@@ -41,7 +41,7 @@ set -e
 # Install into tmproot
 #
 info "Installing into the temporary directory."
-$make install DESTDIR="$tmproot"
+make install DESTDIR="$tmproot"
 
 #
 # Generate stub manifest
@@ -49,16 +49,17 @@ $make install DESTDIR="$tmproot"
 info "Generating the stub manifest."
 manifest="$tmproot/+MANIFEST"
 cat >"$manifest" <<EOF
-name: $package
-version: $version
-origin: local/$package
-comment: BSD-licensed Lua extension
-arch: $pkgabi
-www: http://$package.agileanteater.com
-maintainer: stefan@agileanteater.com
-prefix: $prefix
-licenses: [MIT, BSD]
-catagories: [local]
+name: "lua51-${package}"
+origin: "local/lua-${package}"
+version: "${version}"
+comment: "${package} Lua extension"
+abi: "${pkgabi}"
+arch: "freebsd:10:x86:64"
+www: "http://lua${package}.agileanteater.com"
+maintainer: "stefan@agileanteater.com"
+prefix: "$prefix"
+licenselogic: "single"
+categories: ["local"]
 EOF
 cp "README" "$tmproot/+DESC"
 
