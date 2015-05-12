@@ -22,6 +22,7 @@ pkgver=$(pkg -v)
 pkgabi=$(pkg config abi)
 [ -n "$pkgabi" ] || error "Unable to determine package ABI."
 
+prefix=/usr/local
 package=$1
 version=$2
 
@@ -60,7 +61,7 @@ comment: BSD-licensed Lua extension
 arch: $pkgabi
 www: http://$package.agileanteater.com
 maintainer: stefan@agileanteater.com
-prefix: /usr/local
+prefix: $prefix
 licenses: [MIT, BSD]
 catagories: [local]
 EOF
@@ -72,7 +73,7 @@ cp "README" "$tmproot/+DESC"
 info "Generating the file list."
 (
 	echo "files: {"
-	find -s "$tmproot@prefix@" -type f -or -type l | while read file ; do
+	find -s "$tmproot$prefix" -type f -or -type l | while read file ; do
 		case $file in
 		*.la)
 			continue
@@ -89,7 +90,7 @@ info "Generating the file list."
 # Create the package
 #
 info "Creating the package."
-pkg create -r "$tmproot" -m "$tmproot" -o "$builddir"
+pkg create -r "$tmproot" -m "$tmproot"
 
 #
 # Done
