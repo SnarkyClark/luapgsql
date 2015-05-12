@@ -1,5 +1,6 @@
 # makefile for pgsql library for Lua
 PREFIX ?= /usr/local
+VERSION = 1.0
 
 # Lua setup
 LUAINC = $(PREFIX)/include/lua51
@@ -38,3 +39,6 @@ install: $(TARGET)
 
 uninstall:
 	-rm $(DESTDIR)$(LUAEXT)/$(TARGET)
+
+package:
+	sh mkpkgng.sh lua51-$(LIBNAME) $(VERSION)

@@ -38,15 +38,10 @@ trap "info Deleting the temporary directory. ; rm -rf '$tmproot'" EXIT
 set -e
 
 #
-# Create temporary directory
+# Install into tmproot
 #
-info "Creating the temporary directory."
-tmproot=$(mktemp -d "${TMPDIR:-/tmp}/$package-$version.XXXXXX")
-[ -n "$tmproot" -a -d "$tmproot" ] || \
-    error "Unable to create the temporary directory."
-trap "exit 1" INT
-trap "info Deleting the temporary directory. ; rm -rf '$tmproot'" EXIT
-set -e
+info "Installing into the temporary directory."
+$make install DESTDIR="$tmproot"
 
 #
 # Generate stub manifest
