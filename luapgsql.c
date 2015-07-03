@@ -183,7 +183,7 @@ LUALIB_API int luaopen_pgsql(lua_State *L) {
 	luaL_newmetatable(L, TYPE_RESULT);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
-	luaL_setfuncs(L, R_res_methods, 0)
+	luaL_setfuncs(L, R_res_methods, 0);
 	lua_pushcfunction(L, L_res_gc);
 	lua_setfield(L, -2, "__gc");
 	lua_pop(L, 1);
