@@ -1,12 +1,12 @@
 # makefile for pgsql library for Lua
 LIBNAME = pgsql
 PREFIX ?= /usr/local
-VERSION = 1.0.1
+VERSION = 1.0.2
 
 # Lua setup
-LUAINC = $(PREFIX)/include/lua51
-LUALIB = $(PREFIX)/lib/lua51
-LUAEXT = $(PREFIX)/lib/lua/5.1
+LUAINC = $(PREFIX)/include/lua52
+LUALIB = $(PREFIX)/lib/lua52
+LUAEXT = $(PREFIX)/lib/lua/5.2
 
 # libp setup
 LIBINC = $(PREFIX)/include

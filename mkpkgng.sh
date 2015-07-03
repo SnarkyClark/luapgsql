@@ -49,7 +49,7 @@ make install DESTDIR="$tmproot"
 info "Generating the stub manifest."
 manifest="$tmproot/+MANIFEST"
 cat >"$manifest" <<EOF
-name: "lua51-${package}"
+name: "lua52-${package}"
 origin: "local/lua-${package}"
 version: "${version}"
 comment: "${package} Lua extension"
