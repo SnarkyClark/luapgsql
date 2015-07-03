@@ -3,6 +3,26 @@
 
 #include "luapgsql.h"
 
+/** Lua 5.1 compatibility **/
+
+#if !defined LUA_VERSION_NUM || LUA_VERSION_NUM==501
+/*
+** Adapted from Lua 5.2.0
+*/
+static void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup) {
+  luaL_checkstack(L, nup+1, "too many upvalues");
+  for (; l->name != NULL; l++) {  /* fill the table with given functions */
+    int i;
+    lua_pushstring(L, l->name);
+    for (i = 0; i < nup; i++)  /* copy upvalues to the top */
+      lua_pushvalue(L, -(nup+1));
+    lua_pushcclosure(L, l->func, nup);  /* closure with those upvalues */
+    lua_settable(L, -(nup + 3));
+  }
+  lua_pop(L, nup);  /* remove upvalues */
+}
+#endif
+
 /** private helper functions **/
 
 /* server NOTICE message handler */
@@ -146,7 +166,8 @@ static const luaL_Reg R_res_methods[] = {
 /* open the library - used by require() */
 LUALIB_API int luaopen_pgsql(lua_State *L) {
 	/* register the base functions and module tags */
-	luaL_register(L, "pg", R_pg_functions);
+	lua_newtable(L);
+	luaL_setfuncs(L, R_pg_functions, 0);
 	lua_pushliteral(L,"version");			/** version */
 	lua_pushliteral(L,MYVERSION);
 	lua_settable(L,-3);
@@ -154,7 +175,7 @@ LUALIB_API int luaopen_pgsql(lua_State *L) {
 	luaL_newmetatable(L, TYPE_CONNECTION);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
-	luaL_register(L, NULL, R_con_methods);
+	luaL_setfuncs(L, R_con_methods, 0);
 	lua_pushcfunction(L, L_con_gc);
 	lua_setfield(L, -2, "__gc");
 	lua_pop(L, 1);
@@ -162,7 +183,7 @@ LUALIB_API int luaopen_pgsql(lua_State *L) {
 	luaL_newmetatable(L, TYPE_RESULT);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
-	luaL_register(L, NULL, R_res_methods);
+	luaL_setfuncs(L, R_res_methods, 0)
 	lua_pushcfunction(L, L_res_gc);
 	lua_setfield(L, -2, "__gc");
 	lua_pop(L, 1);
