@@ -21,6 +21,8 @@ static void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup) {
   }
   lua_pop(L, nup);  /* remove upvalues */
 }
+#else
+	#define luaL_getn luaL_len
 #endif
 
 /** private helper functions **/
@@ -254,7 +256,7 @@ LUALIB_API int L_con_exec(lua_State *L) {
 				param_count = luaL_checkinteger(L, 4);
 			} else {
 				/* parameter count not given, trust in the force (luaL_getn) */
-				param_count = (int)lua_rawlen(L, 3);
+				param_count = luaL_getn(L, 3);
 			}
 			/* clear-allocate params for PQexecParams */
 			if (param_count > 0) param = calloc(param_count, sizeof(char *));
