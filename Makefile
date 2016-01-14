@@ -22,23 +22,23 @@ INCS = -I$(LUA_INCDIR) -I$(PQ_INCDIR)
 LIBS = -L$(LUA_LIBDIR) -L$(PQ_LIBDIR) -lpq   
 FLAGS = -shared $(WARN) $(INCS) $(LIBS)      
 CFLAGS = -O2 -fPIC                           
-                                             
+
 SOURCES = lua$(LIBNAME).c                    
 HEADERS = lua$(LIBNAME).h                    
 OBJECTS = $(SOURCES:.c=.o)                   
-TARGET = $(LIBNAME).so                       
-                                             
+TARGET = $(LIBNAME).so
+
 all:    $(TARGET)
 
 $(TARGET): $(SOURCES) $(HEADERS)
-        $(CC) $(FLAGS) $(CFLAGS) -o $@ $(SOURCES)
+	$(CC) $(FLAGS) $(CFLAGS) -o $@ $(SOURCES)
 
 clean:
-        rm -f $(OBJECTS) $(TARGET) core core.*
+	rm -f $(OBJECTS) $(TARGET) core core.*
 
 install: $(TARGET)
-        install -d $(DESTDIR)$(LUA_MODLIBDIR)
-        install -vs $(TARGET) $(DESTDIR)$(LUA_MODLIBDIR)
+	install -d $(DESTDIR)$(LUA_MODLIBDIR)
+	install -vs $(TARGET) $(DESTDIR)$(LUA_MODLIBDIR)
 
 uninstall:
-        -rm $(DESTDIR)$(LUA_MODLIBDIR)/$(TARGET)
+	-rm $(DESTDIR)$(LUA_MODLIBDIR)/$(TARGET)
